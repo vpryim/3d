@@ -25,7 +25,7 @@ function App() {
       </div>
       <div style={{ height: 'calc(100% - 48px)' }} className="px-4 pb-4">
         <div className="rounded bg-zinc-100 border border-zinc-200 h-full w-full flex items-center justify-center">
-          <canvas id="map" width={400} height={400} />
+          <canvas id="map" width={640} height={480} />
         </div>
       </div>
     </div>
