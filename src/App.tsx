@@ -1,19 +1,32 @@
 import './App.css'
 import * as THREE from 'three'
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Line } from '@react-three/drei'
+import {
+  Text,
+  CameraControls,
+  Edges,
+  Line,
+  MapControls,
+  OrbitControls,
+  OrthographicCamera,
+  PerspectiveCamera,
+  PresentationControls,
+} from '@react-three/drei'
 
 type BoxProps = ThreeElements['mesh'] & {
   w: number
   h: number
   d: number
+  l: string
+  p: number[]
 }
 
 function Box(props: BoxProps) {
   const meshRef = useRef<THREE.Mesh>(null!)
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
+  const { w, h, d, l, p, ...meshProps } = props
   // useFrame((state, delta) => (meshRef.current.rotation.x += delta))
   // const geometry = new THREE.BoxGeometry(1, 1, 0.2)
   // const edges = new THREE.EdgesGeometry(geometry)
@@ -22,23 +35,27 @@ function Box(props: BoxProps) {
   return (
     <>
       <mesh
-        {...props}
+        {...meshProps}
         ref={meshRef}
-        scale={active ? 1.5 : 1}
+        position={p}
+        scale={active ? 1 : 1}
         onClick={(event) => {
-          console.log(event)
           setActive(!active)
         }}
         onPointerOver={() => setHover(true)}
         onPointerOut={() => setHover(false)}
       >
-        <boxGeometry args={[props.w, props.h, props.d]} />
-        <meshStandardMaterial color={hovered ? 'orange' : 0xffffff} />
+        <boxGeometry args={[w, h, d]} />
+        <meshStandardMaterial color={hovered ? 0x5766c1 : 0xffffff} />
+        <Edges scale={hovered ? 1 : 1} color={hovered ? 'black' : 0xa2a2a2} />
       </mesh>
-      <lineSegments {...props}>
-        <boxGeometry args={[props.w, props.h, props.d]} />
-        <lineBasicMaterial color={0xbfc0c0} />
-      </lineSegments>
+      <Text
+        position={[p[0] + 0.1, p[1] - 0.1, 0.4]}
+        scale={0.1}
+        color={hovered ? 'black' : 0xa2a2a2}
+      >
+        {props.l}
+      </Text>
     </>
   )
 }
@@ -48,7 +65,8 @@ function Plane(props: ThreeElements['mesh']) {
   return (
     <mesh {...props} ref={meshRef}>
       <planeGeometry args={[10, 10]} />
-      <meshStandardMaterial color={0xf4f4f4} />
+      <meshStandardMaterial color={0xe2e2e2} />
+      <Edges scale={1} threshold={15} color={0xa2a2a2} />
     </mesh>
   )
 }
@@ -72,40 +90,54 @@ function App() {
         <div></div>
       </div>
       <div style={{ height: 'calc(100% - 48px)' }} className="px-4 pb-4">
-        <div className="rounded bg-zinc-100 border border-zinc-200 h-full w-full flex items-center justify-center">
+        <div className="rounded bg-zinc-50 border border-zinc-200 h-full w-full flex items-center justify-center">
           <Canvas
+            orthographic
             camera={{
-              aspect: 640 / 480,
-              fov: 50,
-              near: 0.1,
-              far: 1000,
-              zoom: 1,
+              up: [0, 0, 1],
+              far: 200,
+              zoom: 110,
             }}
           >
+            <MapControls />
             <ambientLight intensity={Math.PI / 2} />
-            <pointLight position={[10, 10, 10]} decay={0} intensity={Math.PI} />
+            <pointLight position={[0, 5, 10]} decay={0} intensity={Math.PI} />
+            <pointLight
+              position={[5, 8, 10]}
+              decay={0}
+              intensity={Math.PI * 2}
+            />
             <group
-              position={[0, 0, -6]}
+              position={[0, 0, -10]}
               rotation={[
-                (-45 * Math.PI) / 180,
+                (-60 * Math.PI) / 180,
                 (0 * Math.PI) / 180,
                 (-45 * Math.PI) / 180,
               ]}
             >
-              <Box position={[0, 0, 0.5]} w={1} h={3} d={0.2} />
-              <Box position={[0, 2.2, 0.5]} w={1} h={1} d={0.2} />
               <Plane position={[0, 0, 0]} />
-              <Line
-                points={[
-                  [-5, 5, 0],
-                  [5, 5, 0],
-                  [5, -5, 0],
-                  [-5, -5, 0],
-                  [-5, 5, 0],
-                ]}
-                color={0xbfc0c0}
-                lineWidth={1}
-              />
+              <Box l="P2093" p={[-1, 2.2, 0.2]} w={1} h={1} d={0.2} />
+              <Box l="P2094" p={[-1, 3.2, 0.2]} w={1} h={1} d={0.2} />
+              <Box l="P2095" p={[0, 3.2, 0.2]} w={1} h={1} d={0.2} />
+              <Box l="P2096" p={[0, 2.2, 0.2]} w={1} h={1} d={0.2} />
+              <Box l="P2938" p={[-3.2, 1.2, 0.2]} w={2} h={1} d={0.2} />
+              <Box l="P2931" p={[-3.87, 1.96, 0.2]} w={2 / 3} h={0.5} d={0.2} />
+              <Box l="P2932" p={[-3.2, 1.96, 0.2]} w={2 / 3} h={0.5} d={0.2} />
+              <Box l="P2933" p={[-2.54, 1.96, 0.2]} w={2 / 3} h={0.5} d={0.2} />
+              <Box l="HS020" p={[-3.5, -2, 0.2]} w={1.5} h={1} d={0.2} />
+              <Box l="HS019" p={[-3.5, -0.75, 0.2]} w={1.5} h={1.5} d={0.2} />
+              <Box l="A094" p={[1.3, -2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A095" p={[0.4, -2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A096" p={[-0.5, -2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A097" p={[-1.4, -2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A091" p={[1.3, -3.2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A092" p={[0.4, -3.2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A093" p={[-0.5, -3.2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A094" p={[-1.4, -3.2, 0.2]} w={0.5} h={1} d={0.2} />
+              <Box l="A020" p={[3, -3, 0.2]} w={1.5} h={1.5} d={0.2} />
+              <Box l="A030" p={[2.75, -1.5, 0.2]} w={1} h={1.5} d={0.2} />
+              <Box l="A031" p={[3.5, -1.875, 0.2]} w={0.5} h={0.75} d={0.2} />
+              <Box l="A032" p={[3.5, -1.125, 0.2]} w={0.5} h={0.75} d={0.2} />
             </group>
           </Canvas>
         </div>
